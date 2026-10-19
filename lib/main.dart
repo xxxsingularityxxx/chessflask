@@ -38,6 +38,27 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   int? selectedRow;
   int? selectedCol;
 
+  @override
+  void initState() {
+    super.initState();
+    // ปลุก Server ทันทีที่เปิดหน้าเว็บขึ้นมา
+    wakeUpServer();
+  }
+
+  // ฟังก์ชันยิง HTTP Request เพื่อปลุก Render Backend
+  Future<void> wakeUpServer() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://chessflask-api.onrender.com/'),
+      );
+      if (response.statusCode == 200) {
+        print('Server is awake!');
+      }
+    } catch (e) {
+      print('Error waking up server: $e');
+    }
+  }
+
   List<List<String>> parseFenToBoard(String fen) {
     String boardPart = fen.split(' ')[0];
     List<String> ranks = boardPart.split('/');
@@ -214,6 +235,29 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   Widget build(BuildContext context) {
     List<List<String>> boardMatrix = parseFenToBoard(currentFen);
 
+    // ดึงขนาดความกว้างและความสูงหน้าจอ
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // คำนวณขนาดกระดานแบบ Dynamic รองรับทั้งคอมพิวเตอร์และมือถือ
+    bool isMobile = screenWidth < 600;
+    double boardSize;
+
+    if (isMobile) {
+      // มือถือ: ขยายกระดานเป็น 92% ของความกว้างจอ (ใหญ่ขึ้น ~250%-300%)
+      boardSize = screenWidth * 0.92;
+    } else {
+      // คอมพิวเตอร์: ขยายเป็น 500px (ใหญ่ขึ้น ~40% จากเดิม 360px)
+      boardSize = 500.0;
+      // ป้องกันไม่ให้กระดานสูงล้นจอคอมพิวเตอร์
+      if (boardSize > screenHeight * 0.7) {
+        boardSize = screenHeight * 0.7;
+      }
+    }
+
+    // คำนวณขนาดฟอนต์ของตัวหมากให้สัมพันธ์กับขนาดกระดาน
+    double pieceFontSize = (boardSize / 8) * 0.65;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chess Game - Move & Auto Save to Google Drive'),
@@ -226,10 +270,17 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 360,
-                height: 360,
+                width: boardSize,
+                height: boardSize,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.brown.shade800, width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
@@ -262,7 +313,7 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
                           child: Text(
                             getChessPieceSymbol(piece),
                             style: TextStyle(
-                              fontSize: 32,
+                              fontSize: pieceFontSize,
                               fontWeight: FontWeight.bold,
                               color: piece == piece.toUpperCase()
                                   ? Colors.white
@@ -277,7 +328,7 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: 360,
+                width: boardSize,
                 child: Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
