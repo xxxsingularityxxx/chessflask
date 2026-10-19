@@ -173,7 +173,9 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
       isLoading = true;
     });
 
-    final url = Uri.parse('http://localhost:5001/api/game/save-gdrive');
+    final url = Uri.parse(
+      'https://chessflask-api.onrender.com/api/game/save-gdrive',
+    );
     final payload = {
       'fen': fenToSave,
       'timestamp': DateTime.now().toIso8601String(),
