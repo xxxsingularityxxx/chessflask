@@ -38,14 +38,15 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   int? selectedRow;
   int? selectedCol;
 
+  // ตัวแปรสำหรับคอมโบปรับความโต (ค่าเริ่มต้น 1.0 หรือ 100%)
+  double scaleFactor = 1.0;
+
   @override
   void initState() {
     super.initState();
-    // ปลุก Server ทันทีที่เปิดหน้าเว็บขึ้นมา
     wakeUpServer();
   }
 
-  // ฟังก์ชันยิง HTTP Request เพื่อปลุก Render Backend
   Future<void> wakeUpServer() async {
     try {
       final response = await http.get(
@@ -235,36 +236,68 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   Widget build(BuildContext context) {
     List<List<String>> boardMatrix = parseFenToBoard(currentFen);
 
-    // ดึงขนาดความกว้างและความสูงหน้าจอ
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // ตั้งเกณฑ์หน้าจอ: ถ้าน้อยกว่า 900px จะถือว่าเป็นมือถือทั้งหมด
-    // (ช่วยดักกรณีเปิด Desktop Site บนมือถือ ให้ยังคงแสดงผลเป็นกระดานใหญ่)
+    // เช็คว่าเป็น Mobile หรือ Desktop Site ตามเกณฑ์ 900px
     bool isMobile = screenWidth < 900;
-    double boardSize;
+    double baseBoardSize;
 
     if (isMobile) {
-      // สำหรับมือถือ (ขยายกระดานเป็น 95% ของความกว้างจอ)
-      boardSize = screenWidth * 0.95;
-      if (boardSize > screenHeight * 0.65) {
-        boardSize = screenHeight * 0.65;
+      // Mobile Site: ขนาดปกติ
+      baseBoardSize = screenWidth * 0.95;
+      if (baseBoardSize > screenHeight * 0.65) {
+        baseBoardSize = screenHeight * 0.65;
       }
     } else {
-      // สำหรับจอคอมพิวเตอร์จริงๆ (ความกว้างมากกว่า 900px)
-      boardSize = 500.0;
-      if (boardSize > screenHeight * 0.7) {
-        boardSize = screenHeight * 0.7;
+      // Desktop Site: ขยายขึ้น 58% (คูณ 1.58) เพื่อชดเชยตอนโดนบีบจอ
+      baseBoardSize = 500.0 * 1.58;
+      if (baseBoardSize > screenHeight * 0.7) {
+        baseBoardSize = screenHeight * 0.7;
       }
     }
 
-    // คำนวณขนาดฟอนต์ของตัวหมากให้สัมพันธ์กับขนาดกระดาน
+    // คูณด้วยค่าความโตจากคอมโบที่ผู้ใช้เลือก [80%, 90%, 100%, 110%, 120%]
+    double boardSize = baseBoardSize * scaleFactor;
+
     double pieceFontSize = (boardSize / 8) * 0.65;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chess Game - Move & Auto Save to Google Drive'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          // คอมโบเลือกปรับความโต [80%, 90%, 100%, 110%, 120%]
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              children: [
+                const Text(
+                  'ขนาด: ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                DropdownButton<double>(
+                  value: scaleFactor,
+                  dropdownColor: Colors.deepPurple.shade50,
+                  items: const [
+                    DropdownMenuItem(value: 0.8, child: Text('80%')),
+                    DropdownMenuItem(value: 0.9, child: Text('90%')),
+                    DropdownMenuItem(value: 1.0, child: Text('100%')),
+                    DropdownMenuItem(value: 1.1, child: Text('110%')),
+                    DropdownMenuItem(value: 1.2, child: Text('120%')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        scaleFactor = value;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
