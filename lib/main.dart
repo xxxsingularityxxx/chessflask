@@ -1,7 +1,9 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart'; // สำหรับเช็ก defaultTargetPlatform
+import 'package:flutter/foundation.dart'; // สำหรับเช็ก kIsWeb
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html; // สำหรับดึงค่าความกว้างจอจริงบนเว็บ
 
 void main() {
   runApp(const ChessApp());
@@ -42,11 +44,9 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   @override
   void initState() {
     super.initState();
-    // ปลุก Server ทันทีที่เปิดหน้าเว็บขึ้นมา
     wakeUpServer();
   }
 
-  // ฟังก์ชันยิง HTTP Request เพื่อปลุก Render Backend
   Future<void> wakeUpServer() async {
     try {
       final response = await http.get(
@@ -236,35 +236,53 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   Widget build(BuildContext context) {
     List<List<String>> boardMatrix = parseFenToBoard(currentFen);
 
-    // ดึงขนาดความกว้างและความสูงหน้าจอ
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // ตรวจสอบว่าเปิดใช้งานบนอุปกรณ์มือถือหรือไม่ (iOS หรือ Android)
-    bool isMobilePlatform =
-        defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.android;
+    // ตรวจสอบว่าเป็นมือถือจริง ๆ หรือไม่ (แม้จะเปิดโหมด Desktop Site อยู่ก็ตาม)
+    bool isMobileDevice = false;
+    double actualDeviceWidth = screenWidth;
 
-    // เงื่อนไข: ถ้าเป็นอุปกรณ์มือถือ หรือ ความกว้างหน้าจอน้อยกว่า 600px
-    // จะบังคับให้แสดงผลเป็น Mobile Site เสมอ (แก้ไขปัญหาเผลอกด Desktop Site ในมือถือ)
-    bool isMobile = isMobilePlatform || screenWidth < 600;
+    if (kIsWeb) {
+      String userAgent = html.window.navigator.userAgent.toLowerCase();
+      bool isMobileUA =
+          userAgent.contains('android') ||
+          userAgent.contains('iphone') ||
+          userAgent.contains('ipad') ||
+          userAgent.contains('ipod') ||
+          userAgent.contains('mobile');
+
+      if (isMobileUA) {
+        isMobileDevice = true;
+        // ดึงความกว้างหน้าจอทางกายภาพจริงๆ ของมือถือ แม้จะโดนบังคับเปิด Desktop mode
+        actualDeviceWidth =
+            html.window.visualViewport?.width?.toDouble() ??
+            html.window.screen?.width?.toDouble() ??
+            screenWidth;
+        if (actualDeviceWidth > 600) {
+          actualDeviceWidth = screenWidth < 600 ? screenWidth : 390.0;
+        }
+      }
+    }
+
+    // หากเป็นมือถือ (ไม่ว่าจะโหมดปกติหรือเผลอกด Desktop Site) จะบังคับเป็น Mobile เสมอ
+    bool isMobile = isMobileDevice || screenWidth < 600;
     double boardSize;
 
     if (isMobile) {
-      // เมื่อเปิดในมือถือ (แสดงผล Mobile site ให้เต็มกระดานสวยงามเสมอ)
-      boardSize = screenWidth * 0.95;
+      // ใช้ความกว้างจริงของจอมือถือมาคำนวณ เพื่อให้แสดงผลใหญ่เต็มตาเสมอ
+      boardSize = actualDeviceWidth * 0.95;
       if (boardSize > screenHeight * 0.65) {
         boardSize = screenHeight * 0.65;
       }
     } else {
-      // เมื่อเปิดในคอมพิวเตอร์เดสก์ท็อปจริง ๆ
+      // เฉพาะคอมพิวเตอร์เดสก์ท็อปจริง ๆ เท่านั้น
       boardSize = 500.0;
       if (boardSize > screenHeight * 0.7) {
         boardSize = screenHeight * 0.7;
       }
     }
 
-    // คำนวณขนาดฟอนต์ของตัวหมากให้สัมพันธ์กับขนาดกระดาน
     double pieceFontSize = (boardSize / 8) * 0.65;
 
     return Scaffold(
