@@ -35431,19 +35431,19 @@ break
 case 5:return A.Q(null,r)
 case 1:return A.P(p.at(-1),r)}})
 return A.R($async$rA,r)},
-T(a){var s,r,q,p,o=this,n=null,m=o.MK(o.d),l=t.w,k=A.c_(a,n,l).w.a.a
-l=A.c_(a,n,l).w
-if(k<600)s=k*0.92
-else{s=l.a.b*0.7
-s=500>s?s:500}l=A.aB(a).ax
-r=l.y2
-l=r==null?l.c:r
-r=A.adW(B.yI,4)
-r=A.aaS(new A.Ca(B.xo,new A.a0L(new A.a48(o,m,s/8*0.65),64,!0,!0,!0,n),n,B.aB,!1,n,n,B.Es,!1,n,64,B.b1,n,n,B.aj,B.al,n),new A.eY(n,n,r,n,B.BZ,n,B.bh),s,n,n,s)
-q=t.af
-p=A.d([B.MP,B.HU],q)
-if(o.f)p.push(B.HW)
-return new A.v3(new A.qy(B.MO,l,new A.JX(n,n,1/0,56),n),A.AB(new A.Fj(B.zN,A.aen(A.d([r,B.HX,A.agL(new A.Ay(new A.fD(B.zL,A.aen(A.d([A.aqK(p,B.c7,B.hS),B.v9,A.abY("\u2022 "+o.e,n),B.v9,A.abY("FEN: "+o.d,B.Lo)],q),B.b_,B.cc),n),n),n,s)],q),B.c7,B.pA),n),n,n),n)}}
+T(a){var s,r,q,p,o,n=this,m=null,l=n.MK(n.d),k=t.w,j=A.c_(a,m,k).w.a.a,i=A.c_(a,m,k).w.a.b
+if(j<600){s=j*0.98
+r=i*0.65
+if(s>r)s=r}else{s=i*0.7
+s=500>s?s:500}k=A.aB(a).ax
+q=k.y2
+k=q==null?k.c:q
+q=A.adW(B.yI,4)
+q=A.aaS(new A.Ca(B.xo,new A.a0L(new A.a48(n,l,s/8*0.65),64,!0,!0,!0,m),m,B.aB,!1,m,m,B.Es,!1,m,64,B.b1,m,m,B.aj,B.al,m),new A.eY(m,m,q,m,B.BZ,m,B.bh),s,m,m,s)
+p=t.af
+o=A.d([B.MP,B.HU],p)
+if(n.f)o.push(B.HW)
+return new A.v3(new A.qy(B.MO,k,new A.JX(m,m,1/0,56),m),A.AB(new A.Fj(B.zN,A.aen(A.d([q,B.HX,A.agL(new A.Ay(new A.fD(B.zL,A.aen(A.d([A.aqK(o,B.c7,B.hS),B.v9,A.abY("\u2022 "+n.e,m),B.v9,A.abY("FEN: "+n.d,B.Lo)],p),B.b_,B.cc),m),m),m,s)],p),B.c7,B.pA),m),m,m),m)}}
 A.a49.prototype={
 $0(){var s=this.a
 s.r=this.b

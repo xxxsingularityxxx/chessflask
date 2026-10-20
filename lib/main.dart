@@ -244,8 +244,13 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     double boardSize;
 
     if (isMobile) {
-      // มือถือ: ขยายกระดานเป็น 92% ของความกว้างจอ (ใหญ่ขึ้น ~250%-300%)
-      boardSize = screenWidth * 0.92;
+      // มือถือ: ขยายกระดานเป็น 98% ของความกว้างจอ (ขยายเกือบชิดขอบจอ)
+      boardSize = screenWidth * 0.98;
+
+      // ป้องกันไม่ให้กระดานสูงเกินไปจนล้นหน้าจอมือถือในแนวตั้ง
+      if (boardSize > screenHeight * 0.65) {
+        boardSize = screenHeight * 0.65;
+      }
     } else {
       // คอมพิวเตอร์: ขยายเป็น 500px (ใหญ่ขึ้น ~40% จากเดิม 360px)
       boardSize = 500.0;
