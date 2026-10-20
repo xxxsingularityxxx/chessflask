@@ -239,31 +239,19 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // คำนวณขนาดกระดานแบบ Dynamic รองรับทั้งคอมพิวเตอร์และโหมดเดสก์ท็อปบนมือถือ
+    // (ต่อให้เปิด Desktop Site บนมือถือ ถ้าจอเล็ก ก็จะแสดงผลแบบมือถือให้เต็มจอสวยงามครับ)
     bool isMobile = screenWidth < 600;
     double boardSize;
 
     if (isMobile) {
-      // 3. Web mobile ในมือถือ (โหมดมือถือปกติ)
-      boardSize = screenWidth * 0.98;
+      // 2. เมื่อเปิดในมือถือ (แสดงผล Mobile site เต็มตา)
+      boardSize = screenWidth * 0.95;
       if (boardSize > screenHeight * 0.65) {
         boardSize = screenHeight * 0.65;
       }
     } else {
-      // 1. Web desktop ในคอมพิวเตอร์ และ 2. Web desktop ในมือถือ
-      // ใช้การคำนวณแบบสัดส่วน เพื่อให้บนมือถือโหมดเดสก์ท็อปไม่เล็กจนเกินไป
-      boardSize = screenWidth * 0.45;
-
-      // จำกัดขนาดสูงสุดไม่เกิน 500px (สำหรับจอคอมใหญ่ๆ)
-      // และกำหนดขั้นต่ำไว้ไม่ให้เล็กกว่า 380px (สำหรับตอนเปิด Desktop site บนมือถือ)
-      if (boardSize > 500.0) {
-        boardSize = 500.0;
-      }
-      if (boardSize < 380.0) {
-        boardSize = 380.0;
-      }
-
-      // ป้องกันไม่ให้กระดานสูงล้นหน้าจอ
+      // 1. เมื่อเปิดในคอมพิวเตอร์ (แสดงผล Desktop site)
+      boardSize = 500.0;
       if (boardSize > screenHeight * 0.7) {
         boardSize = screenHeight * 0.7;
       }
