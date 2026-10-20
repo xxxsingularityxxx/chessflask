@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart'; // สำหรับเช็ก defaultTargetPlatform
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -239,18 +240,24 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // (ต่อให้เปิด Desktop Site บนมือถือ ถ้าจอเล็ก ก็จะแสดงผลแบบมือถือให้เต็มจอสวยงามครับ)
-    bool isMobile = screenWidth < 600;
+    // ตรวจสอบว่าเปิดใช้งานบนอุปกรณ์มือถือหรือไม่ (iOS หรือ Android)
+    bool isMobilePlatform =
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android;
+
+    // เงื่อนไข: ถ้าเป็นอุปกรณ์มือถือ หรือ ความกว้างหน้าจอน้อยกว่า 600px
+    // จะบังคับให้แสดงผลเป็น Mobile Site เสมอ (แก้ไขปัญหาเผลอกด Desktop Site ในมือถือ)
+    bool isMobile = isMobilePlatform || screenWidth < 600;
     double boardSize;
 
     if (isMobile) {
-      // 2. เมื่อเปิดในมือถือ (แสดงผล Mobile site เต็มตา)
+      // เมื่อเปิดในมือถือ (แสดงผล Mobile site ให้เต็มกระดานสวยงามเสมอ)
       boardSize = screenWidth * 0.95;
       if (boardSize > screenHeight * 0.65) {
         boardSize = screenHeight * 0.65;
       }
     } else {
-      // 1. เมื่อเปิดในคอมพิวเตอร์ (แสดงผล Desktop site)
+      // เมื่อเปิดในคอมพิวเตอร์เดสก์ท็อปจริง ๆ
       boardSize = 500.0;
       if (boardSize > screenHeight * 0.7) {
         boardSize = screenHeight * 0.7;
