@@ -139,7 +139,7 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
       case 'B':
         return '♗';
       case 'Q':
-        return '♕';
+        return '♛';
       case 'K':
         return '♔';
       case 'P':
@@ -239,52 +239,92 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // เช็คว่าเป็น Mobile หรือ Desktop Site ตามเกณฑ์ 900px
     bool isMobile = screenWidth < 900;
     double baseBoardSize;
 
+    // ตัวคูณปรับขนาดฟอนต์ข้อความสำหรับ Desktop Site ให้ใหญ่ขึ้น
+    double textScaleFactor = isMobile ? 1.0 : 2.2;
+
     if (isMobile) {
-      // Mobile Site: ขนาดปกติ
       baseBoardSize = screenWidth * 0.95;
       if (baseBoardSize > screenHeight * 0.65) {
         baseBoardSize = screenHeight * 0.65;
       }
     } else {
-      // Desktop Site: ขยายขึ้น 58% (คูณ 1.58) เพื่อชดเชยตอนโดนบีบจอ
       baseBoardSize = 500.0 * 1.58;
       if (baseBoardSize > screenHeight * 0.7) {
         baseBoardSize = screenHeight * 0.7;
       }
     }
 
-    // คูณด้วยค่าความโตจากคอมโบที่ผู้ใช้เลือก [80%, 90%, 100%, 110%, 120%]
     double boardSize = baseBoardSize * scaleFactor;
-
     double pieceFontSize = (boardSize / 8) * 0.65;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chess Game - Move & Auto Save to Google Drive'),
+        toolbarHeight: isMobile
+            ? 56
+            : 90, // เพิ่มความสูง AppBar เมื่ออยู่โหมด Desktop
+        title: Text(
+          'Chess Game - Move & Auto Save to Google Drive',
+          style: TextStyle(fontSize: 16 * textScaleFactor),
+        ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
-          // คอมโบเลือกปรับความโต [80%, 90%, 100%, 110%, 120%]
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Row(
               children: [
-                const Text(
+                Text(
                   'ขนาด: ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14 * textScaleFactor,
+                  ),
                 ),
                 DropdownButton<double>(
                   value: scaleFactor,
                   dropdownColor: Colors.deepPurple.shade50,
-                  items: const [
-                    DropdownMenuItem(value: 0.8, child: Text('80%')),
-                    DropdownMenuItem(value: 0.9, child: Text('90%')),
-                    DropdownMenuItem(value: 1.0, child: Text('100%')),
-                    DropdownMenuItem(value: 1.1, child: Text('110%')),
-                    DropdownMenuItem(value: 1.2, child: Text('120%')),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14 * textScaleFactor,
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: 0.8,
+                      child: Text(
+                        '80%',
+                        style: TextStyle(fontSize: 14 * textScaleFactor),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 0.9,
+                      child: Text(
+                        '90%',
+                        style: TextStyle(fontSize: 14 * textScaleFactor),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 1.0,
+                      child: Text(
+                        '100%',
+                        style: TextStyle(fontSize: 14 * textScaleFactor),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 1.1,
+                      child: Text(
+                        '110%',
+                        style: TextStyle(fontSize: 14 * textScaleFactor),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 1.2,
+                      child: Text(
+                        '120%',
+                        style: TextStyle(fontSize: 14 * textScaleFactor),
+                      ),
+                    ),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -367,35 +407,41 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
                 width: boardSize,
                 child: Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Text(
+                            Text(
                               'สถานะ:',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14 * textScaleFactor,
+                              ),
                             ),
                             const SizedBox(width: 8),
                             if (isLoading)
-                              const SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
+                              SizedBox(
+                                width: 14 * textScaleFactor,
+                                height: 14 * textScaleFactor,
+                                child: const CircularProgressIndicator(
                                   strokeWidth: 2,
                                 ),
                               ),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        Text('• $statusMessage'),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
+                        Text(
+                          '• $statusMessage',
+                          style: TextStyle(fontSize: 14 * textScaleFactor),
+                        ),
+                        const SizedBox(height: 6),
                         Text(
                           'FEN: $currentFen',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey,
+                          style: TextStyle(
+                            fontSize: 10 * textScaleFactor,
+                            color: Colors.grey.shade700,
                           ),
                         ),
                       ],
