@@ -1,9 +1,6 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart'; // สำหรับเช็ก kIsWeb
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html; // สำหรับดึงค่าความกว้างจอจริงบนเว็บ
 
 void main() {
   runApp(const ChessApp());
@@ -44,9 +41,11 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   @override
   void initState() {
     super.initState();
+    // ปลุก Server ทันทีที่เปิดหน้าเว็บขึ้นมา
     wakeUpServer();
   }
 
+  // ฟังก์ชันยิง HTTP Request เพื่อปลุก Render Backend
   Future<void> wakeUpServer() async {
     try {
       final response = await http.get(
@@ -236,53 +235,30 @@ class _ChessBoardPageState extends State<ChessBoardPage> {
   Widget build(BuildContext context) {
     List<List<String>> boardMatrix = parseFenToBoard(currentFen);
 
+    // ดึงขนาดความกว้างและความสูงหน้าจอ
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // ตรวจสอบว่าเป็นมือถือจริง ๆ หรือไม่ (แม้จะเปิดโหมด Desktop Site อยู่ก็ตาม)
-    bool isMobileDevice = false;
-    double actualDeviceWidth = screenWidth;
-
-    if (kIsWeb) {
-      String userAgent = html.window.navigator.userAgent.toLowerCase();
-      bool isMobileUA =
-          userAgent.contains('android') ||
-          userAgent.contains('iphone') ||
-          userAgent.contains('ipad') ||
-          userAgent.contains('ipod') ||
-          userAgent.contains('mobile');
-
-      if (isMobileUA) {
-        isMobileDevice = true;
-        // ดึงความกว้างหน้าจอทางกายภาพจริงๆ ของมือถือ แม้จะโดนบังคับเปิด Desktop mode
-        actualDeviceWidth =
-            html.window.visualViewport?.width?.toDouble() ??
-            html.window.screen?.width?.toDouble() ??
-            screenWidth;
-        if (actualDeviceWidth > 600) {
-          actualDeviceWidth = screenWidth < 600 ? screenWidth : 390.0;
-        }
-      }
-    }
-
-    // หากเป็นมือถือ (ไม่ว่าจะโหมดปกติหรือเผลอกด Desktop Site) จะบังคับเป็น Mobile เสมอ
-    bool isMobile = isMobileDevice || screenWidth < 600;
+    // ตั้งเกณฑ์หน้าจอ: ถ้าน้อยกว่า 900px จะถือว่าเป็นมือถือทั้งหมด
+    // (ช่วยดักกรณีเปิด Desktop Site บนมือถือ ให้ยังคงแสดงผลเป็นกระดานใหญ่)
+    bool isMobile = screenWidth < 900;
     double boardSize;
 
     if (isMobile) {
-      // ใช้ความกว้างจริงของจอมือถือมาคำนวณ เพื่อให้แสดงผลใหญ่เต็มตาเสมอ
-      boardSize = actualDeviceWidth * 0.95;
+      // สำหรับมือถือ (ขยายกระดานเป็น 95% ของความกว้างจอ)
+      boardSize = screenWidth * 0.95;
       if (boardSize > screenHeight * 0.65) {
         boardSize = screenHeight * 0.65;
       }
     } else {
-      // เฉพาะคอมพิวเตอร์เดสก์ท็อปจริง ๆ เท่านั้น
+      // สำหรับจอคอมพิวเตอร์จริงๆ (ความกว้างมากกว่า 900px)
       boardSize = 500.0;
       if (boardSize > screenHeight * 0.7) {
         boardSize = screenHeight * 0.7;
       }
     }
 
+    // คำนวณขนาดฟอนต์ของตัวหมากให้สัมพันธ์กับขนาดกระดาน
     double pieceFontSize = (boardSize / 8) * 0.65;
 
     return Scaffold(
