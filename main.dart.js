@@ -35434,8 +35434,11 @@ return A.R($async$rA,r)},
 T(a){var s,r,q,p,o,n=this,m=null,l=n.MK(n.d),k=t.w,j=A.c_(a,m,k).w.a.a,i=A.c_(a,m,k).w.a.b
 if(j<600){s=j*0.98
 r=i*0.65
-if(s>r)s=r}else{s=i*0.7
-s=500>s?s:500}k=A.aB(a).ax
+if(s>r)s=r}else{s=j*0.45
+if(s>500)s=500
+if(s<380)s=380
+r=i*0.7
+if(s>r)s=r}k=A.aB(a).ax
 q=k.y2
 k=q==null?k.c:q
 q=A.adW(B.yI,4)
